@@ -8,18 +8,9 @@ so that the View never has to touch PyTorch directly.
 """
 
 import os
-import urllib.request
-
-CHECKPOINT_URL = "https://github.com/yourusername/accident_detector/releases/download/v1.0/best_model.pt"
-CHECKPOINT_PATH = os.path.join(config.CHECKPOINT_DIR, "best_model.pt")
-
-if not os.path.exists(CHECKPOINT_PATH):
-    print("Downloading model checkpoint...")
-    urllib.request.urlretrieve(CHECKPOINT_URL, CHECKPOINT_PATH)
-
-import os
 import sys
 import time
+import urllib.request
 import torch
 import torch.nn as nn
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
@@ -33,6 +24,41 @@ import torchvision.transforms as T
 from data.dataset import IMAGENET_MEAN, IMAGENET_STD
 
 
+# ---------------------------------------------------------------------
+# Remote checkpoint download
+# ---------------------------------------------------------------------
+# GitHub blocks files >100MB in a normal repo push, so the trained weights
+# are hosted as a GitHub Release asset instead and pulled down on demand
+# (e.g. on a fresh Streamlit Cloud deploy where checkpoints/ starts empty).
+CHECKPOINT_URL = "https://github.com/yourusername/accident_detector/releases/download/v1.0/best_model.pt"
+DEFAULT_CHECKPOINT_NAME = "best_model.pt"
+
+
+def ensure_checkpoint(filename=DEFAULT_CHECKPOINT_NAME, url=CHECKPOINT_URL):
+    """
+    Makes sure a local checkpoint file exists, downloading it from the
+    GitHub Release URL if it's missing. Safe to call every app startup —
+    it's a no-op once the file has been downloaded once.
+
+    Returns the local path to the checkpoint, or None if it still
+    couldn't be found/downloaded.
+    """
+    path = os.path.join(config.CHECKPOINT_DIR, filename)
+
+    if os.path.exists(path):
+        return path
+
+    os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
+    try:
+        print(f"[INFO] Checkpoint not found locally, downloading from {url} ...")
+        urllib.request.urlretrieve(url, path)
+        print(f"[INFO] Checkpoint downloaded to {path}")
+        return path
+    except Exception as e:
+        print(f"[WARN] Failed to download checkpoint: {e}")
+        return None
+
+
 class AccidentDetectorController:
     """
     Single entry point the View (Streamlit/Flask) talks to.
@@ -40,8 +66,14 @@ class AccidentDetectorController:
     `predict_video()` method for the demo dashboard.
     """
 
-    def __init__(self, checkpoint_path=None, freeze_backbone=True):
+    def __init__(self, checkpoint_path=None, freeze_backbone=True, auto_download=True):
         self.device = config.DEVICE
+
+        # If no explicit path was given, try to resolve/download the
+        # default checkpoint automatically (used by the View on startup).
+        if checkpoint_path is None and auto_download:
+            checkpoint_path = ensure_checkpoint()
+
         self.model = build_model(pretrained_checkpoint=checkpoint_path,
                                    freeze_backbone=freeze_backbone,
                                    device=self.device)
