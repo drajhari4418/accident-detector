@@ -19,10 +19,7 @@ from controllers.controller import AccidentDetectorController
 
 @st.cache_resource
 def load_controller():
-    """Cached so the model is loaded once per session, not per interaction."""
-    checkpoint = os.path.join(config.CHECKPOINT_DIR, "best_model.pt")
-    checkpoint = checkpoint if os.path.exists(checkpoint) else None
-    return AccidentDetectorController(checkpoint_path=checkpoint)
+    return AccidentDetectorController()
 
 
 def main():
