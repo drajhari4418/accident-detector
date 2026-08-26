@@ -8,6 +8,16 @@ so that the View never has to touch PyTorch directly.
 """
 
 import os
+import urllib.request
+
+CHECKPOINT_URL = "https://github.com/yourusername/accident_detector/releases/download/v1.0/best_model.pt"
+CHECKPOINT_PATH = os.path.join(config.CHECKPOINT_DIR, "best_model.pt")
+
+if not os.path.exists(CHECKPOINT_PATH):
+    print("Downloading model checkpoint...")
+    urllib.request.urlretrieve(CHECKPOINT_URL, CHECKPOINT_PATH)
+
+import os
 import sys
 import time
 import torch
