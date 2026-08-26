@@ -30,7 +30,7 @@ from data.dataset import IMAGENET_MEAN, IMAGENET_STD
 # GitHub blocks files >100MB in a normal repo push, so the trained weights
 # are hosted as a GitHub Release asset instead and pulled down on demand
 # (e.g. on a fresh Streamlit Cloud deploy where checkpoints/ starts empty).
-CHECKPOINT_URL = "https://github.com/yourusername/accident_detector/releases/download/v1.0/best_model.pt"
+CHECKPOINT_URL = "https://github.com/drajhari4418/accident_detector/releases/download/v8.0/best_model.pt"
 DEFAULT_CHECKPOINT_NAME = "best_model.pt"
 
 
