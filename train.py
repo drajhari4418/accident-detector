@@ -1,11 +1,6 @@
 """
 train.py
 Top-level entry point for training the accident detector.
-
-Usage:
-    1. Put raw videos in sample_data/raw/accident/ and sample_data/raw/non_accident/
-    2. python data/preprocessing.py          # builds sample_data/processed/index.csv
-    3. python train.py                       # trains and saves checkpoints/best_model.pt
 """
 
 import os
@@ -25,7 +20,7 @@ def main():
         )
         return
 
-    controller = AccidentDetectorController(freeze_backbone=True)
+    controller = AccidentDetectorController(auto_download=False, freeze_backbone=True)
     history = controller.train(num_epochs=config.NUM_EPOCHS, lr=config.LEARNING_RATE)
 
     history_path = os.path.join(config.CHECKPOINT_DIR, "training_history.json")

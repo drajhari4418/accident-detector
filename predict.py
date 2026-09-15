@@ -22,7 +22,8 @@ def main():
     checkpoint_path = os.path.join(config.CHECKPOINT_DIR, args.checkpoint)
     checkpoint_path = checkpoint_path if os.path.exists(checkpoint_path) else None
     if checkpoint_path is None:
-        print("[WARN] No checkpoint found — using untrained weights (demo only).")
+        print("[WARN] No local checkpoint found — will attempt auto-download, "
+              "or fall back to untrained weights + motion heuristic only.")
 
     controller = AccidentDetectorController(checkpoint_path=checkpoint_path)
     result = controller.predict_video(args.video)
@@ -32,9 +33,16 @@ def main():
         return
 
     print(f"Video: {result['video_path']}")
-    print(f"Accident probability: {result['accident_probability']:.2%}")
-    print(f"Threshold: {result['threshold']:.2%}")
-    print(f"Verdict: {'🚨 ACCIDENT DETECTED' if result['is_accident'] else '✅ No accident'}")
+    print(f"Windows scanned: {result['num_windows_scanned']}")
+    print(f"Peak moment: {result['peak_time_sec']}s into the clip")
+    print(f"Model signal:   {result['model_probability']:.2%}")
+    print(f"Motion signal:  {result['motion_score']:.2%}")
+    print(f"Combined score: {result['accident_probability']:.2%}  (threshold: {result['threshold']:.2%})")
+    print()
+    if result["is_accident"]:
+        print(f"🚨 {result['status_label']}")
+    else:
+        print(f"✅ {result['status_label']}")
 
 
 if __name__ == "__main__":

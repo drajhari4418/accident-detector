@@ -1,23 +1,15 @@
 """
 make_dummy_data.py
-Generates a handful of small synthetic (random-noise) video clips so you can
-verify the full pipeline — preprocessing -> training -> inference — runs
-correctly on your machine before you invest time collecting a real dataset.
-
-These clips carry NO real signal (just random pixels), so a model trained on
-them will not learn anything meaningful. This is purely a plumbing test.
-
-Usage:
-    python make_dummy_data.py
+Generates synthetic (random-noise) video clips to verify the pipeline
+plumbing before you invest time collecting a real dataset.
 """
 
 import os
 import cv2
 import numpy as np
-
 import config
 
-N_CLIPS_PER_CLASS = 6     # a few clips per class so train/val split has enough samples
+N_CLIPS_PER_CLASS = 6
 N_FRAMES = 30
 FRAME_W, FRAME_H = 320, 240
 FPS = 15
@@ -42,12 +34,8 @@ def main():
         make_dummy_video(os.path.join(accident_dir, f"dummy_{i}.mp4"))
         make_dummy_video(os.path.join(non_accident_dir, f"dummy_{i}.mp4"))
 
-    print(f"Created {N_CLIPS_PER_CLASS} dummy clips in:")
-    print(f"  {accident_dir}")
-    print(f"  {non_accident_dir}")
-    print("\nNext steps:")
-    print("  python data/preprocessing.py")
-    print("  python train.py")
+    print(f"Created {N_CLIPS_PER_CLASS} dummy clips in:\n  {accident_dir}\n  {non_accident_dir}")
+    print("\nNext steps:\n  python data/preprocessing.py\n  python train.py")
 
 
 if __name__ == "__main__":
