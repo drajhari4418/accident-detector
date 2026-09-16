@@ -119,21 +119,37 @@ since this Streamlit app runs entirely server-side.
    database** (start in test mode — see note on security rules below)
 2. **Project Settings** (gear icon) → **Service accounts** tab → **Generate
    new private key** → a JSON file downloads
-3. Open that JSON file and copy its fields into a `[firebase_service_account]`
-   table in `.streamlit/secrets.toml` — see the template in
-   `.streamlit/secrets.toml.example` for the exact field names and format
-4. On Streamlit Community Cloud: paste the same `[firebase_service_account]`
-   table into **Manage app → Settings → Secrets**
+3. Run this locally (adjust the path to wherever the file downloaded),
+   and copy its full output — one long line:
+   ```
+   python -c "import base64; print(base64.b64encode(open('path/to/your-downloaded-key.json','rb').read()).decode())"
+   ```
+4. Paste that output into `.streamlit/secrets.toml` as:
+   ```toml
+   FIREBASE_SERVICE_ACCOUNT_B64 = "...the long string from step 3..."
+   ```
+5. On Streamlit Community Cloud: paste the same `FIREBASE_SERVICE_ACCOUNT_B64`
+   value into **Manage app → Settings → Secrets**
+
+This base64-blob method is recommended over manually copying individual
+JSON fields into a TOML table — hand-transcribing the multi-line
+`private_key` field is the single most common way this breaks (a
+dropped newline, a smart-quote substitution from an editor's autocorrect,
+a partial copy), which surfaces as a cryptic **"Unable to load PEM file
+/ Invalid padding"** error from the underlying crypto library. Encoding
+the whole file as one opaque string sidesteps that entirely — the
+old table-based format still works and is documented in
+`.streamlit/secrets.toml.example` if you'd rather use it, but the
+base64 method is less error-prone.
 
 **Security note:** "test mode" Firestore rules allow open read/write
 for a limited time — fine while developing, but before sharing your
 app publicly, tighten your Firestore security rules (in the Firebase
 console) to restrict access to each user's own records.
 
-This feature is optional — if `[firebase_service_account]` isn't
-configured, the app still works for detection, just without history.
-Set `ENABLE_DB_STORAGE = False` in `config.py` to hide the feature
-entirely.
+This feature is optional — if neither credential format is configured,
+the app still works for detection, just without history. Set
+`ENABLE_DB_STORAGE = False` in `config.py` to hide the feature entirely.
 
 ## Setup
 
