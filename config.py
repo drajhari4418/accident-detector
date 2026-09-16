@@ -69,7 +69,7 @@ MODEL_ENSEMBLE_WEIGHT = 0.35
 # ---------------------------------------------------------------------
 # Actual FIREBASE_API_KEY value is read from .streamlit/secrets.toml —
 # never hardcode it here or commit it to git.
-REQUIRE_LOGIN = False
+REQUIRE_LOGIN = True
 
 # ---------------------------------------------------------------------
 # Cloud Firestore (see controllers/db_controller.py)
